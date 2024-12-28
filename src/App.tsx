@@ -1,5 +1,6 @@
-import React, {useState} from 'react';
-import {PropsWithChildren} from 'react';
+import React, { useState } from 'react';
+import { PropsWithChildren } from 'react';
+import RNHapticFeedback from 'react-native-haptic-feedback';
 import {
   Image,
   ImageSourcePropType,
@@ -25,7 +26,12 @@ type DiceProps = PropsWithChildren<{
   imageurl: ImageSourcePropType;
 }>;
 
-const Dice = ({imageurl}: DiceProps) => {
+const options = {
+  enableVibrateFallback: true,
+  ignoreAndroidSystemSettings: false,
+};
+
+const Dice = ({ imageurl }: DiceProps) => {
   return (
     <View>
       <Image style={styles.diceImage} source={imageurl} />
@@ -34,7 +40,9 @@ const Dice = ({imageurl}: DiceProps) => {
 };
 
 function App(): React.JSX.Element {
+
   const [diceImage, setdiceImage] = useState<ImageSourcePropType>(diceOne);
+
   const rollDiceOnTap = () => {
     let randNumber = Math.ceil(Math.random() * 6);
     switch (randNumber) {
@@ -60,11 +68,28 @@ function App(): React.JSX.Element {
         setdiceImage(diceOne);
         break;
     }
+    RNHapticFeedback.trigger("impactHeavy", options)
   };
+
+  const [bgcolor, setBgcolor] = useState("#000000");
+
+  const generateColor = () => {
+    const hexRange = "0123456789ABCDEF"
+    let color = "#"
+    for (let i = 0; i < 6; i++) {
+      let index = Math.floor(Math.random() * hexRange.length)
+      color += hexRange.charAt(index)
+    }
+    setBgcolor(color)
+  }
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container,{backgroundColor:bgcolor}]}>
       <Dice imageurl={diceImage}></Dice>
-      <Pressable onPress={rollDiceOnTap}>
+      <Pressable onPress={()=>{
+        rollDiceOnTap;
+        generateColor;
+      }}>
         <Text style={styles.rollDiceBtnText}>Tap to roll</Text>
       </Pressable>
     </View>
@@ -76,7 +101,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFF2F2',
   },
   diceContainer: {
     margin: 12,
